@@ -2,6 +2,7 @@
 //The MIT License - See ../LICENSE for more info
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <algorithm>
 
 #include "Crypto.h"
@@ -13,7 +14,19 @@
 int main()
 {
 	Log::setLogfile("symmetry.log");
-	std::cout << "Symmetry version 1.2\nEnter key:";
+	std::cout << "Symmetry version 1.3\nEnter number of newlines to break on (or enter to use default of 2):\n";
+	std::string numNew;
+	int maxNewlines;
+	std::getline(std::cin, numNew);
+	if (numNew.size() == 0)
+		maxNewlines = 2;
+	else
+	{
+		std::istringstream buffer(numNew);
+		buffer >> maxNewlines;
+	}
+
+	std::cout << "Enter key: ";
 	std::string key;
 	std::string input;
 	std::getline(std::cin, key);
@@ -53,10 +66,10 @@ int main()
 		}
 		else
 		{
-			std::cout << "Enter text to decrypt. Terminate entry with two consecutive newlines:";
+			std::cout << "Enter text to decrypt. Terminate entry with " << maxNewlines << " consecutive newlines:";
 			std::vector<std::string> inputLines;
 			int numNewlines = 0;
-			while (numNewlines < 2)
+			while (numNewlines < maxNewlines)
 			{
 				std::string newline;
 				std::getline(std::cin, newline);
