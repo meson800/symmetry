@@ -1,3 +1,5 @@
+//Copyright (c) 2016 Christopher Johnstone(meson800)
+//The MIT License - See ../../LICENSE for more info
 #include <iostream>
 #include <string>
 #include <algorithm>
@@ -51,13 +53,43 @@ int main()
 		}
 		else
 		{
-			std::cout << "Enter text to decrypt:";
-			std::getline(std::cin, input);
-			std::string inputBytes = base64_decode(input);
-			result = crypto.decryptSymmetric(symKey, Helpers::stringToBytes(inputBytes));
-			std::cout << "\n";
-			for (unsigned int i = 0; i < result.size(); ++i)
-				std::cout << result[i];
+			std::cout << "Enter text to decrypt. Terminate entry with two consecutive newlines:";
+			std::vector<std::string> inputLines;
+			int numNewlines = 0;
+			while (numNewlines < 2)
+			{
+				std::string newline;
+				std::getline(std::cin, newline);
+				if (newline.size() == 0)
+					++numNewlines;
+				else
+				{
+					numNewlines = 0;
+					inputLines.push_back(newline);
+				}
+				
+			}
+			int numFailed = 0;
+			for (std::string line : inputLines)
+			{
+				try
+				{
+					std::string inputBytes = base64_decode(line);
+					result = crypto.decryptSymmetric(symKey, Helpers::stringToBytes(inputBytes));
+					if (numFailed > 0)
+						std::cout << "\nCouldn't decrypt " << numFailed << " lines\n";
+					std::cout << "\n";
+					numFailed = 0;
+					for (unsigned int i = 0; i < result.size(); ++i)
+						std::cout << result[i];
+					std::cout << "\n";
+				}
+				catch (OpensslException)
+				{
+					++numFailed;
+				}
+			}
+
 			std::cout << "\nPress enter to exit...\n";
 			std::cout.flush();
 			std::cin.ignore(std::numeric_limits <std::streamsize> ::max(), '\n');
