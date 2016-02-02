@@ -1,7 +1,10 @@
+//Copyright (c) 2016 Christopher Johnstone(meson800)
+//The MIT License - See ../LICENSE for more info
+//Edited from the below.
 /*
 base64.cpp and base64.h
 
-Copyright (C) 2004-2008 René Nyffenegger
+Copyright (C) 2004-2008 Ren? Nyffenegger
 
 This source code is provided 'as-is', without any express or implied
 warranty. In no event will the author be held liable for any damages
@@ -21,7 +24,7 @@ misrepresented as being the original source code.
 
 3. This notice may not be removed or altered from any source distribution.
 
-René Nyffenegger rene.nyffenegger@adp-gmbh.ch
+Ren? Nyffenegger rene.nyffenegger@adp-gmbh.ch
 
 */
 

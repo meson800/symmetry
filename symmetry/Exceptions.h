@@ -1,3 +1,5 @@
+//Copyright (c) 2016 Christopher Johnstone(meson800)
+//The MIT License - See ../LICENSE for more info
 #pragma once
 
 #include <stdexcept>

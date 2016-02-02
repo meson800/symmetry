@@ -1,3 +1,5 @@
+//Copyright (c) 2016 Christopher Johnstone(meson800)
+//The MIT License - See ../LICENSE for more info
 #include "Log.h"
 
 std::mutex Log::writeMutex;
