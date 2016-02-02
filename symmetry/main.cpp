@@ -13,7 +13,7 @@
 int main()
 {
 	Log::setLogfile("symmetry.log");
-	std::cout << "Enter key:";
+	std::cout << "Symmetry version 1.2\nEnter key:";
 	std::string key;
 	std::string input;
 	std::getline(std::cin, key);
