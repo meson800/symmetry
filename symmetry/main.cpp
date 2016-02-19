@@ -14,17 +14,18 @@
 int main()
 {
 	Log::setLogfile("symmetry.log");
-	std::cout << "Symmetry version 1.3\nEnter number of newlines to break on (or enter to use default of 2):\n";
-	std::string numNew;
-	int maxNewlines;
-	std::getline(std::cin, numNew);
-	if (numNew.size() == 0)
-		maxNewlines = 2;
-	else
-	{
-		std::istringstream buffer(numNew);
-		buffer >> maxNewlines;
-	}
+	std::cout << "Symmetry version 1.4\n";
+	//std::cout << "Symmetry version 1.4\nEnter number of newlines to break on (or enter to use default of 2):\n";
+	//std::string numNew;
+	int maxNewlines = 3;
+	//std::getline(std::cin, numNew);
+	//if (numNew.size() == 0)
+	//	maxNewlines = 3;
+	//else
+	//{
+	//	std::istringstream buffer(numNew);
+	//	buffer >> maxNewlines;
+	//}
 
 	std::cout << "Enter key: ";
 	std::string key;
@@ -50,74 +51,81 @@ int main()
 	Crypto crypto;
 	SymmetricKey symKey = crypto.deriveKeyFromPassword(pepper, Helpers::stringToBytes(key));
 
-	std::cout << "Enter e to encrypt, d to decrypt:";
-	std::string op;
-	std::getline(std::cin, op);
-
-	op.erase(std::remove(op.begin(), op.end(), '\n'), op.end());
-	std::vector<unsigned char> result;
-	try
+	while (true)
 	{
-		if (op[0] == 'e')
+		std::cout << "Enter e to encrypt, d to decrypt, q to quit:";
+		std::string op;
+		std::getline(std::cin, op);
+
+		op.erase(std::remove(op.begin(), op.end(), '\n'), op.end());
+		std::vector<unsigned char> result;
+		try
 		{
-			std::cout << "Enter text to encrypt:";
-			std::getline(std::cin, input);
-			result = crypto.encryptSymmetric(symKey, Helpers::stringToBytes(input));
-		}
-		else
-		{
-			std::cout << "Enter text to decrypt. Terminate entry with " << maxNewlines << " consecutive newlines:";
-			std::vector<std::string> inputLines;
-			int numNewlines = 0;
-			while (numNewlines < maxNewlines)
+			if (op[0] == 'e')
 			{
-				std::string newline;
-				std::getline(std::cin, newline);
-				if (newline.size() == 0)
-					++numNewlines;
-				else
-				{
-					numNewlines = 0;
-					inputLines.push_back(newline);
-				}
-				
+				std::cout << "Enter text to encrypt:";
+				std::getline(std::cin, input);
+				result = crypto.encryptSymmetric(symKey, Helpers::stringToBytes(input));
+
+				std::cout << "\n";
+				std::cout << base64_encode(result.data(), result.size());
 			}
-			int numFailed = 0;
-			for (std::string line : inputLines)
+			else if (op[0] == 'q')
 			{
-				try
+				return 0;
+			}
+			else
+			{
+				std::cout << "Enter text to decrypt. Terminate entry with " << maxNewlines << " consecutive newlines:";
+				std::vector<std::string> inputLines;
+				int numNewlines = 0;
+				while (numNewlines < maxNewlines)
 				{
-					std::string inputBytes = base64_decode(line);
-					result = crypto.decryptSymmetric(symKey, Helpers::stringToBytes(inputBytes));
-					if (numFailed > 0)
-						std::cout << "\nCouldn't decrypt " << numFailed << " lines\n";
-					std::cout << "\n";
-					numFailed = 0;
-					for (unsigned int i = 0; i < result.size(); ++i)
-						std::cout << result[i];
-					std::cout << "\n";
+					std::string newline;
+					std::getline(std::cin, newline);
+					if (newline.size() == 0)
+						++numNewlines;
+					else
+					{
+						numNewlines = 0;
+						inputLines.push_back(newline);
+					}
+
 				}
-				catch (OpensslException)
+				int numFailed = 0;
+				for (std::string line : inputLines)
 				{
-					++numFailed;
+					try
+					{
+						std::string inputBytes = base64_decode(line);
+						result = crypto.decryptSymmetric(symKey, Helpers::stringToBytes(inputBytes));
+						//if (numFailed > 0)
+						//	std::cout << "\nCouldn't decrypt " << numFailed << " lines\n";
+						//std::cout << "\n";
+						//numFailed = 0;
+						std::cout << "[PT]";
+						for (unsigned int i = 0; i < result.size(); ++i)
+							std::cout << result[i];
+						std::cout << "\n";
+					}
+					catch (OpensslException)
+					{
+						std::cout << line << "\n";
+						++numFailed;
+					}
 				}
+
 			}
 
-			std::cout << "\nPress enter to exit...\n";
-			std::cout.flush();
-			std::cin.ignore(std::numeric_limits <std::streamsize> ::max(), '\n');
-			return 0;
-		}
 
-		std::cout << "\n";
-		std::cout << base64_encode(result.data(), result.size());
+		}
+		catch (OpensslException)
+		{
+			std::cout << "Couldn't decrypt text. Either the key was bad or the data was corrupted/entered incorrectly :(\n";
+		}
+		std::cout << "\nPress enter to continue...\n";
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
-	catch (OpensslException)
-	{
-		std::cout << "Couldn't decrypt text. Either the key was bad or the data was corrupted/entered incorrectly :(\n";
-	}
-	std::cout << "\nPress enter to exit...\n";
-	std::cout.flush();
-	std::cin.ignore(std::numeric_limits <std::streamsize> ::max(), '\n');
+
 	return 0;
 }
